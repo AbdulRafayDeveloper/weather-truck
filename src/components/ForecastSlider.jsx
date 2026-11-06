@@ -1,7 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { formatDateTime, shiftNaiveIsoDateTime } from '../utils/formatters';
 
 const PRESET_OFFSETS = [0, 6, 12, 18, 24, 36, 48];
+
+// Each change re-runs the full route analysis, so we wait until the user
+// stops dragging before sending a request.
+const DRAG_DEBOUNCE_MS = 450;
 
 export default function ForecastSlider({
   offsetHours = 0,
@@ -12,40 +17,30 @@ export default function ForecastSlider({
   const [localValue, setLocalValue] = useState(offsetHours);
   const debounceTimerRef = useRef(null);
 
-  // Synchronize local slider value when parent offset changes (e.g. trip reset)
+  // Keep in sync when the parent resets the offset (new trip submitted).
   useEffect(() => {
     setLocalValue(offsetHours);
   }, [offsetHours]);
+
+  useEffect(() => () => clearTimeout(debounceTimerRef.current), []);
 
   const handleSliderChange = (e) => {
     const nextVal = parseInt(e.target.value, 10);
     setLocalValue(nextVal);
 
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
-
+    clearTimeout(debounceTimerRef.current);
     debounceTimerRef.current = setTimeout(() => {
-      if (nextVal !== offsetHours) {
-        onChangeOffset(nextVal);
-      }
-    }, 450);
+      if (nextVal !== offsetHours) onChangeOffset(nextVal);
+    }, DRAG_DEBOUNCE_MS);
   };
 
   const handlePresetClick = (presetVal) => {
-    if (debounceTimerRef.current) {
-      clearTimeout(debounceTimerRef.current);
-    }
+    clearTimeout(debounceTimerRef.current);
     setLocalValue(presetVal);
-    if (presetVal !== offsetHours) {
-      onChangeOffset(presetVal);
-    }
+    if (presetVal !== offsetHours) onChangeOffset(presetVal);
   };
 
-  // Calculate the projected departure datetime for the current local slider value
-  const previewDeparture = baselineDeparture
-    ? shiftNaiveIsoDateTime(baselineDeparture, localValue)
-    : '';
+  const previewDeparture = baselineDeparture ? shiftNaiveIsoDateTime(baselineDeparture, localValue) : '';
 
   return (
     <section className="forecast-slider-container" aria-label="Departure forecast offset slider">
@@ -75,7 +70,6 @@ export default function ForecastSlider({
         Route corridors, checkpoint ETAs, and weather forecasts will recalculate automatically.
       </p>
 
-      {/* Range Input Control */}
       <div className="slider-control-row">
         <span className="slider-bound bound-min">0h (Baseline)</span>
         <input
@@ -95,7 +89,6 @@ export default function ForecastSlider({
         <span className="slider-bound bound-max">+48h</span>
       </div>
 
-      {/* Quick-Pick Preset Buttons */}
       <div className="slider-presets-strip" aria-label="Quick departure offset buttons">
         <span className="preset-caption">Quick jump:</span>
         <div className="presets-button-group">
@@ -113,7 +106,6 @@ export default function ForecastSlider({
         </div>
       </div>
 
-      {/* Recalculating Active Banner */}
       {isLoading && (
         <div className="slider-loading-callout" role="status">
           <span className="slider-spinner" aria-hidden="true" />

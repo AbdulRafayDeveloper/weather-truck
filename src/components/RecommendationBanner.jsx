@@ -1,8 +1,5 @@
-import {
-  formatDistance,
-  formatDuration,
-  getRecommendationRationale,
-} from '../utils/formatters';
+import { formatDistance, formatDuration } from '../utils/formatters';
+import { getRecommendationRationale } from '../utils/routeInsights';
 
 export default function RecommendationBanner({
   recommendation,
@@ -47,12 +44,12 @@ export default function RecommendationBanner({
           )}
         </div>
 
-        {rationale && rationale.length > 0 && (
+        {rationale.length > 0 && (
           <div className="hero-rationale-box">
             <span className="rationale-heading">Why this route was selected:</span>
             <ul className="rationale-list">
-              {rationale.map((reason, idx) => (
-                <li key={idx} className="rationale-item">
+              {rationale.map((reason) => (
+                <li key={reason} className="rationale-item">
                   <span className="rationale-bullet" aria-hidden="true">✓</span>
                   <span>{reason}</span>
                 </li>

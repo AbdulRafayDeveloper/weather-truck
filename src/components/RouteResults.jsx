@@ -1,8 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
 import ForecastSlider from './ForecastSlider';
 import RecommendationBanner from './RecommendationBanner';
 import RouteCard from './RouteCard';
 import RouteMap from './RouteMap';
+
+function findBestRoute(routes, recommendation) {
+  if (!routes || routes.length === 0) return null;
+  return (
+    routes.find((r) => r.is_recommended) ||
+    routes.find((r) => r.id === recommendation?.recommended_route_id) ||
+    routes[0]
+  );
+}
 
 export default function RouteResults({
   routes,
@@ -14,6 +24,14 @@ export default function RouteResults({
   onChangeOffset = () => {},
   isRecalculating = false,
 }) {
+  const bestRoute = findBestRoute(routes, recommendation);
+  const [selectedRouteId, setSelectedRouteId] = useState(bestRoute?.id || 1);
+
+  // New results (new trip or slider change) put the map back on the recommended route.
+  useEffect(() => {
+    if (bestRoute?.id) setSelectedRouteId(bestRoute.id);
+  }, [routes, bestRoute?.id]);
+
   if (!routes || routes.length === 0) {
     return (
       <div className="results-empty-state">
@@ -22,25 +40,8 @@ export default function RouteResults({
     );
   }
 
-  const bestRoute =
-    routes.find((r) => r.is_recommended) ||
-    routes.find((r) => r.id === recommendation?.recommended_route_id) ||
-    routes[0] ||
-    null;
-
-  // Track the route actively viewed on the map (defaults to recommended route)
-  const [selectedRouteId, setSelectedRouteId] = useState(bestRoute?.id || 1);
-
-  // Synchronize selected route when new trip search results arrive
-  useEffect(() => {
-    if (bestRoute?.id) {
-      setSelectedRouteId(bestRoute.id);
-    }
-  }, [routes, bestRoute?.id]);
-
   return (
     <section className="route-results-section" aria-label="Route analysis results">
-      {/* 0–48h Departure & Weather Forecast Window Slider */}
       <ForecastSlider
         offsetHours={offsetHours}
         onChangeOffset={onChangeOffset}
@@ -48,7 +49,6 @@ export default function RouteResults({
         isLoading={isRecalculating}
       />
 
-      {/* Top Level Recommendation Banner */}
       <RecommendationBanner
         recommendation={recommendation}
         routesCount={routes.length}
@@ -56,23 +56,19 @@ export default function RouteResults({
         allRoutes={routes}
       />
 
-      {/* Main Split Grid: Route Cards on Left, Interactive Map on Right */}
       <div className="results-split-grid">
-        {/* Left Column: Route Alternatives Cards */}
         <div className="results-cards-column">
           <div className="routes-list-header">
             <h2 className="results-heading">
               Evaluated Routes <span className="results-count">({routes.length})</span>
             </h2>
-            <span className="results-subtitle">
-              Click a card or map line to inspect checkpoint weather and risk.
-            </span>
+            <span className="results-subtitle">Click a card or map line to inspect checkpoint weather and risk.</span>
           </div>
 
           <div className="routes-list">
             {routes.map((route) => (
               <RouteCard
-                key={route.id || route.summary?.departureTime}
+                key={route.id}
                 route={route}
                 origin={origin}
                 destination={destination}
@@ -84,14 +80,12 @@ export default function RouteResults({
           </div>
         </div>
 
-        {/* Right Column: Sticky Interactive Leaflet Map */}
         <div className="results-map-column">
           <div className="map-sticky-wrapper">
             <RouteMap
               routes={routes}
               selectedRouteId={selectedRouteId}
               onSelectRoute={setSelectedRouteId}
-              recommendation={recommendation}
               originLabel={origin}
               destinationLabel={destination}
             />

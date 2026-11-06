@@ -11,7 +11,7 @@
   --primary-blue-hover: #0369a1;
   --primary-blue-light: #f0f9ff;
 
-  /* Status and connection */
+  /* Connection status */
   --status-connected-bg: #ecfdf5;
   --status-connected-text: #065f46;
   --status-connected-dot: #10b981;
@@ -22,7 +22,7 @@
   --status-checking-text: #334155;
   --status-checking-dot: #94a3b8;
 
-  /* Environmental Risk Tiers */
+  /* Risk levels */
   --risk-low: #22c55e;
   --risk-moderate: #eab308;
   --risk-high: #f97316;
@@ -48,7 +48,7 @@ body {
   min-height: 100vh;
 }
 
-/* App Layout */
+/* Layout */
 .app-layout {
   display: flex;
   flex-direction: column;
@@ -157,7 +157,7 @@ body {
   background: var(--bg-app);
 }
 
-/* Intro Hero */
+/* Intro */
 .intro-hero {
   background: #ffffff;
   border-bottom: 1px solid var(--border-subtle);
@@ -246,7 +246,7 @@ body {
   }
 }
 
-/* Main Workspace */
+/* Main layout */
 .app-main {
   flex: 1;
   max-width: 1400px;
@@ -268,7 +268,7 @@ body {
   }
 }
 
-/* Trip Planning Form */
+/* Trip form */
 .trip-form {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -368,7 +368,7 @@ body {
   line-height: 1.4;
 }
 
-/* Interval Radio Selector */
+/* Interval picker */
 .interval-selector {
   display: flex;
   flex-direction: column;
@@ -414,7 +414,7 @@ body {
   margin-top: 1px;
 }
 
-/* Submit Button */
+/* Submit button */
 .form-actions {
   margin-top: 24px;
 }
@@ -464,12 +464,12 @@ body {
   }
 }
 
-/* Results Column */
+/* Results column */
 .results-column {
   min-width: 0;
 }
 
-/* Placeholder State */
+/* Placeholder */
 .placeholder-state {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -539,7 +539,7 @@ body {
   line-height: 1.4;
 }
 
-/* Loading Card */
+/* Loading */
 .loading-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -573,7 +573,7 @@ body {
   margin: 0 auto;
 }
 
-/* Error Card */
+/* Error */
 .error-card {
   background: #fef2f2;
   border: 1px solid #fecaca;
@@ -627,7 +627,7 @@ body {
   line-height: 1.5;
 }
 
-/* Forecast & Departure Adjustment Slider */
+/* Forecast slider */
 .forecast-slider-container {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -807,7 +807,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Recommendation Hero Section */
+/* Recommendation banner */
 .recommendation-hero {
   border-radius: 12px;
   padding: 24px;
@@ -1012,7 +1012,7 @@ body {
   color: var(--text-muted);
 }
 
-/* Routes List */
+/* Route list */
 .routes-list-header {
   margin-bottom: 16px;
 }
@@ -1041,7 +1041,7 @@ body {
   gap: 20px;
 }
 
-/* Scannable Route Card */
+/* Route card */
 .route-card {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -1169,7 +1169,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Comparison Strip for Alternative Routes */
+/* Comparison pills (alternative routes) */
 .card-comparison-badge-strip {
   display: flex;
   align-items: center;
@@ -1218,7 +1218,7 @@ body {
   border: 1px solid #fde68a;
 }
 
-/* Metrics Strip */
+/* Metrics */
 .card-metrics-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1277,7 +1277,7 @@ body {
   font-weight: 600;
 }
 
-/* Schedules Strip */
+/* Departure / arrival */
 .card-schedule-strip {
   display: flex;
   flex-wrap: wrap;
@@ -1305,7 +1305,7 @@ body {
   color: var(--text-primary);
 }
 
-/* Plain Language Callout */
+/* Risk summary text */
 .card-risk-summary-callout {
   margin-bottom: 12px;
 }
@@ -1317,7 +1317,7 @@ body {
   line-height: 1.4;
 }
 
-/* Horizontal Mileage Distribution Bar */
+/* Mileage distribution bar */
 .mileage-distribution-container {
   margin-bottom: 14px;
 }
@@ -1394,7 +1394,7 @@ body {
 .dot-notravel { background-color: var(--risk-notravel); }
 .dot-unassessed { background-color: var(--risk-unassessed); }
 
-/* Details Toggle & Tray */
+/* Breakdown toggle and tray */
 .details-toggle-row {
   display: flex;
   justify-content: flex-end;
@@ -1483,7 +1483,7 @@ body {
   word-break: break-word;
 }
 
-/* Category Accent Borders on Tray Cells */
+/* Tray cell accents */
 .tray-low { border-top: 3px solid var(--risk-low); }
 .tray-moderate { border-top: 3px solid var(--risk-moderate); }
 .tray-high { border-top: 3px solid var(--risk-high); }
@@ -1491,7 +1491,7 @@ body {
 .tray-notravel { border-top: 3px solid var(--risk-notravel); background: #fef2f2; }
 .tray-unassessed { border-top: 3px solid var(--risk-unassessed); }
 
-/* Empty State */
+/* Empty state */
 .results-empty-state {
   background: var(--bg-card);
   border: 1px dashed var(--border-strong);
@@ -1534,11 +1534,7 @@ body {
   text-decoration: underline;
 }
 
-/* ==========================================================================
-   Phase 8: Interactive Route Map, Alternatives & Checkpoint Visualization
-   ========================================================================== */
-
-/* Results Split Grid (Cards on Left, Map on Right) */
+/* Results: cards on the left, map on the right */
 .results-split-grid {
   display: grid;
   grid-template-columns: minmax(340px, 1fr) minmax(380px, 1.25fr);
@@ -1566,7 +1562,7 @@ body {
   z-index: 10;
 }
 
-/* Selected Card Highlight & Interaction */
+/* Selected card */
 .route-card {
   cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
@@ -1596,7 +1592,7 @@ body {
   gap: 4px;
 }
 
-/* Commercial Truck Non-Designated Sections Warning Callout */
+/* Non-truck section warning */
 .card-truck-warning-callout {
   display: flex;
   align-items: flex-start;
@@ -1633,7 +1629,7 @@ body {
   line-height: 1.4;
 }
 
-/* Route Map Wrapper & Leaflet Canvas */
+/* Map */
 .route-map-wrapper {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
@@ -1714,7 +1710,7 @@ body {
   background: #e5e7eb;
 }
 
-/* Map Legend Bar */
+/* Map legend */
 .map-legend-bar {
   background: #f8fafc;
   border-top: 1px solid var(--border-subtle);
@@ -1757,7 +1753,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Custom Marker Styling (divIcon) */
+/* Checkpoint markers */
 .custom-cp-marker-wrap {
   background: transparent;
   border: none;
@@ -1784,7 +1780,7 @@ body {
   height: 18px;
 }
 
-/* Custom Endpoint Pins (A / B) */
+/* Origin / destination pins */
 .custom-endpoint-marker-wrap {
   background: transparent;
   border: none;
@@ -1828,7 +1824,7 @@ body {
   margin-top: 2px;
 }
 
-/* Checkpoint Popup Styling */
+/* Checkpoint popup */
 .checkpoint-popup-wrapper .leaflet-popup-content-wrapper {
   padding: 0;
   border-radius: 10px;
@@ -1992,9 +1988,7 @@ body {
   border-radius: 8px;
 }
 
-/* ==========================================================================
-   Responsive Adaptations (Desktop vs Tablet vs Mobile)
-   ========================================================================== */
+/* Responsive */
 
 @media (max-width: 1120px) {
   .results-split-grid {

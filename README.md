@@ -1,131 +1,105 @@
-# Weather-Aware Truck Routing — Frontend
+# Weather-Aware Truck Routing (Frontend)
 
-React single-page application that helps a truck driver or dispatcher choose the safest route based on **weather, load weight and travel time**. It compares three truck route alternatives on an interactive map, shows a weather-risk heatmap along the trip corridor, and lets the user test departure times up to 48 hours ahead.
+React app that helps a driver or dispatcher pick the safest truck route based on weather, load weight and travel time. It shows three route options on a map, colors each route by weather risk, and lets you check how the picture changes if you leave up to 48 hours later.
 
-**Live app:** https://weathertruck.vercel.app
-**Backend API:** https://weather-truck-backend.vercel.app ([repository](https://github.com/AbdulRafayDeveloper/weather-truck-django-backend))
+- Live app: https://weathertruck.vercel.app
+- Backend API: https://weather-truck-backend.vercel.app ([repo](https://github.com/AbdulRafayDeveloper/weather-truck-django-backend))
 
----
+## What it does
 
-## 1. Features
-
-| Requirement | Implementation |
+| Requirement | How it's handled |
 |---|---|
-| Trip inputs | Origin, destination, departure date/time, load weight (lb), and checkpoint interval (10 / 25 / 50 miles) |
-| 3 route options | All three truck route alternatives returned by the API are drawn on the map and listed as comparison cards |
-| Checkpoints & ETAs | Checkpoint markers along each route; each popup shows mile marker, ETA (origin-local time), wind / rain / snowfall, and per-hazard + overall risk level |
-| Risk levels | Color-coded Low / Moderate / High / Severe / No Travel / Unassessed across markers, heatmap, and cards |
-| Recommendation | Banner showing the recommended route and the rule that selected it, or a clear "no safe route" / "incomplete weather" notice |
-| Route summaries | Distance, travel time, mileage-by-risk distribution bar, distance-weighted average risk, and distance / time / risk deltas vs. the recommended route |
-| Corridor heatmap | The selected route's real road geometry is colored segment-by-segment by checkpoint risk level |
-| 0–48 h forecast slider | Shifts the departure time forward (drag or presets 0 / 6 / 12 / 18 / 24 / 36 / 48 h) and re-evaluates routes, ETAs, weather, risk and recommendation |
+| Trip inputs | Origin, destination, departure date/time, load weight (lb) and a checkpoint interval of 10, 25 or 50 miles |
+| 3 route options | All alternatives from the API are drawn on the map and listed as cards |
+| Checkpoints and ETAs | Markers along the selected route. The popup shows mile marker, ETA in local time, wind / rain / snow and the risk level for each |
+| Risk levels | Same color scale on markers, the heatmap and the cards |
+| Recommendation | Banner with the recommended route and why it was picked. If nothing is safe, or weather data is missing, it says so |
+| Route summaries | Distance, travel time, miles per risk level, average risk, and how each alternative compares to the recommended route |
+| Corridor heatmap | The selected route's road line is split into segments and colored by the nearest checkpoint's risk |
+| 0–48 h slider | Moves the departure time forward and reruns the analysis (drag, or use the 0/6/12/18/24/36/48 h buttons) |
 
-Additional details:
-- **Commercial truck restriction notice** on routes containing sections not designated for trucks.
-- **Backend connection status** indicator with automatic polling and manual retry.
+Routes with sections TomTom doesn't mark as truck-friendly get a warning on the card and on the map.
 
-### Performance
-- Slider drags are **debounced (450 ms)**, so a request is sent only once the user stops moving it; preset buttons apply instantly.
-- Every new request **cancels the previous in-flight request** (`AbortController`), so stale responses never overwrite newer results.
-- Heatmap segments and map layers are derived with `useMemo`, so switching routes or zooming does not recompute unchanged geometry.
+### Keeping it responsive
 
-### Risk color scale
+- Dragging the slider is debounced (450 ms), so we only call the API once the user stops. Preset buttons fire right away.
+- Starting a new request cancels the one in flight with `AbortController`, so an older response can't overwrite a newer one.
+- Heatmap segments are memoized and only rebuilt when the selected route changes.
+
+### Risk colors
 
 | Level | Color |
 |---|---|
-| Low | `#10b981` green |
-| Moderate | `#f59e0b` amber |
-| High | `#f97316` orange |
-| Severe | `#ef4444` red |
-| No Travel | `#7f1d1d` dark red |
-| Unassessed | `#64748b` slate |
+| Low | `#10b981` |
+| Moderate | `#f59e0b` |
+| High | `#f97316` |
+| Severe | `#ef4444` |
+| No Travel | `#7f1d1d` |
+| Unassessed | `#64748b` |
 
----
+## Tech
 
-## 2. Tech Stack
+React 18, Vite 5, Leaflet / React Leaflet with OpenStreetMap tiles, and plain CSS. No other runtime dependencies.
 
-- **React 18** + **Vite 5**
-- **Leaflet** / **React Leaflet** with OpenStreetMap tiles
-- **Fetch API** with `AbortController` request cancellation
-- Plain **CSS3** with a responsive layout
-
----
-
-## 3. Project Structure
+## Project structure
 
 ```text
-weather-truck/
-├── src/
-│   ├── components/
-│   │   ├── TripForm.jsx              # Trip inputs and validation
-│   │   ├── RecommendationBanner.jsx  # Recommended / no-safe-route / incomplete-weather states
-│   │   ├── RouteResults.jsx          # Results layout (map + cards + slider)
-│   │   ├── RouteCard.jsx             # Per-route summary, risk distribution, comparisons
-│   │   ├── RouteMap.jsx              # Leaflet map, routes, checkpoints, corridor heatmap
-│   │   └── ForecastSlider.jsx        # 0–48 h departure offset slider
-│   ├── utils/
-│   │   └── formatters.js             # Distance, duration, date/time and rationale formatting
-│   ├── api.js                        # Backend API client
-│   ├── App.jsx                       # App state, health check, request orchestration
-│   ├── main.jsx
-│   └── styles.css
-├── .env.example
-├── index.html
-├── package.json
-└── vite.config.js
+src/
+├── api.js                     # Calls to the backend
+├── App.jsx                    # Page layout
+├── main.jsx
+├── styles.css
+├── constants/
+│   └── risk.js                # Risk/route colors and interval options
+├── hooks/
+│   ├── useBackendHealth.js    # Health check for the header badge
+│   └── useRouteAnalysis.js    # Trip submission, slider re-runs, request cancelling
+├── utils/
+│   ├── formatters.js          # Distance, duration and date/time formatting
+│   ├── routeInsights.js       # Recommendation reasons, route comparisons, risk badges
+│   └── corridor.js            # Splits a route into heatmap segments
+└── components/
+    ├── AppHeader.jsx
+    ├── IntroHero.jsx
+    ├── EmptyState.jsx
+    ├── TripForm.jsx
+    ├── RouteResults.jsx       # Slider + banner + cards + map
+    ├── ForecastSlider.jsx
+    ├── RecommendationBanner.jsx
+    ├── RouteCard.jsx
+    ├── RouteMap.jsx
+    └── CheckpointPopup.jsx
 ```
 
----
+## Running locally
 
-## 4. Getting Started
-
-### Prerequisites
-- Node.js 18+ and npm 9+
-- The [backend API](https://github.com/AbdulRafayDeveloper/weather-truck-django-backend) running locally or a deployed backend URL
-
-### Installation
+You'll need Node 18+ and the [backend](https://github.com/AbdulRafayDeveloper/weather-truck-django-backend) running (or point to the deployed one).
 
 ```bash
 npm install
 cp .env.example .env.local
+npm run dev
 ```
 
-Set the backend URL in `.env.local`:
+`.env.local`:
 
 ```ini
 VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
 
-### Run in development
+Open http://localhost:5173. The header shows "Service: Connected" once the API responds.
 
-```bash
-npm run dev
-```
-
-Open http://localhost:5173. The header shows **Backend: Connected** once the API is reachable.
-
-### Production build
+Production build:
 
 ```bash
 npm run build
 npm run preview
 ```
 
----
+## Deployment
 
-## 5. Deployment
+Hosted on Vercel and deployed automatically from `main`. The only environment variable is `VITE_API_BASE_URL`, which points to the backend. The frontend's domain also needs to be in the backend's `FRONTEND_URL` so CORS allows it.
 
-Deployed on **Vercel** with continuous deployment from the `main` branch.
+## Credits
 
-| Environment variable | Value |
-|---|---|
-| `VITE_API_BASE_URL` | Backend base URL, e.g. `https://weather-truck-backend.vercel.app` |
-
-The frontend's domain must be included in the backend's `FRONTEND_URL` setting for CORS.
-
----
-
-## 6. Attribution
-
-- Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors.
-- Routing and geocoding by [TomTom](https://developer.tomtom.com/); weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0), both called through the backend.
+Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Routing and geocoding by [TomTom](https://developer.tomtom.com/). Weather by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0).

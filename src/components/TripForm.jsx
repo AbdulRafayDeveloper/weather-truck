@@ -1,8 +1,16 @@
 import { useState } from 'react';
+
+import { INTERVAL_OPTIONS } from '../constants/risk';
 import { formatDepartureForApi, getDefaultDepartureString } from '../utils/formatters';
 
 const DEFAULT_INTERVAL = 25;
 const DEFAULT_WEIGHT = 38000;
+
+const INTERVAL_CHOICES = [
+  { val: 10, title: '10 miles', desc: 'Detailed view — every 10 miles' },
+  { val: 25, title: '25 miles', desc: 'Recommended — every 25 miles' },
+  { val: 50, title: '50 miles', desc: 'High-level overview — every 50 miles' },
+];
 
 export default function TripForm({ onSubmit, isLoading }) {
   const [origin, setOrigin] = useState('Chicago, IL');
@@ -38,7 +46,7 @@ export default function TripForm({ onSubmit, isLoading }) {
       errs.loadWeight = 'Please enter a valid cargo weight greater than 0 lbs.';
     }
 
-    if (![10, 25, 50].includes(Number(intervalMiles))) {
+    if (!INTERVAL_OPTIONS.includes(Number(intervalMiles))) {
       errs.intervalMiles = 'Interval must be one of 10, 25, or 50 miles.';
     }
 
@@ -48,24 +56,17 @@ export default function TripForm({ onSubmit, isLoading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isLoading) return;
+    if (isLoading || !validate()) return;
 
-    if (!validate()) {
-      return;
-    }
-
-    // Critical timezone requirement: format as naive ISO YYYY-MM-DDTHH:mm:ss without UTC conversion or 'Z'
-    const formattedDeparture = formatDepartureForApi(departure);
-
-    const payload = {
+    // Departure stays a naive local time (no "Z"); the backend resolves the
+    // origin's timezone itself.
+    onSubmit({
       origin: origin.trim(),
       destination: destination.trim(),
-      departure: formattedDeparture,
+      departure: formatDepartureForApi(departure),
       load_weight_lb: Number(loadWeight),
       interval_miles: Number(intervalMiles),
-    };
-
-    onSubmit(payload);
+    });
   };
 
   return (
@@ -121,9 +122,7 @@ export default function TripForm({ onSubmit, isLoading }) {
           onChange={(e) => setDeparture(e.target.value)}
           disabled={isLoading}
         />
-        <span className="field-hint">
-          Local clock time at your starting point.
-        </span>
+        <span className="field-hint">Local clock time at your starting point.</span>
         {errors.departure && <span className="field-error">{errors.departure}</span>}
       </div>
 
@@ -156,11 +155,7 @@ export default function TripForm({ onSubmit, isLoading }) {
           How often should we check the weather? <span className="required-star">*</span>
         </label>
         <div className="interval-selector">
-          {[
-            { val: 10, title: '10 miles', desc: 'Detailed view — every 10 miles' },
-            { val: 25, title: '25 miles', desc: 'Recommended — every 25 miles' },
-            { val: 50, title: '50 miles', desc: 'High-level overview — every 50 miles' },
-          ].map(({ val, title, desc }) => (
+          {INTERVAL_CHOICES.map(({ val, title, desc }) => (
             <label
               key={val}
               className={`interval-option ${Number(intervalMiles) === val ? 'selected' : ''} ${isLoading ? 'disabled' : ''}`}
@@ -182,11 +177,7 @@ export default function TripForm({ onSubmit, isLoading }) {
       </div>
 
       <div className="form-actions">
-        <button
-          type="submit"
-          className="submit-button"
-          disabled={isLoading}
-        >
+        <button type="submit" className="submit-button" disabled={isLoading}>
           {isLoading ? (
             <span className="button-loading-content">
               <span className="spinner" />
