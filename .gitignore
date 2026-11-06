@@ -28,3 +28,7 @@ dist-ssr
 .env.*.local
 !.env.example
 .env
+
+.vercel
+.env*
+.vercel
